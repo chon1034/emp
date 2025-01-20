@@ -3,8 +3,11 @@
   <meta charset="utf-8">
   <title>EMP Table uses Node.js and Mysql</title>
   <link href="/assets/css/bootstrap.css" rel="stylesheet" type="text/css"/>
+
 </head>
 <body>
+  <script src="/assets/js/jquery-3.3.1.js"></script>
+  <script src="/assets/js/bootstrap.js"></script>
   <div class="container">
     <h2>員工列表</h2>
         <!--  Button 按鈕樣式說明可參考： https://v4-alpha.getbootstrap.com/components/buttons/#button-tags-->
@@ -12,14 +15,15 @@
     <table class="table table-striped" id="mytable">
       <thead>
         <tr>
-          <th>員工ID</th>
-          <th>員工名稱</th>
+          <th>照片</th>
+          <th>編號</th>
+          <th>姓名</th>
           <th>職位</th>
-          <th>管理者</th>
+          <th>管理</th>
           <th>雇用日期</th>
           <th>薪水</th>
           <th>獎金</th>
-          <th>部門代碼</th>
+          <th>部門</th>
         </tr>
       </thead>
       <tbody>
@@ -27,6 +31,7 @@
         <!-- 下面是hbs 取得 results 變數後，使用 each 語法將裡面的每一個元素取出，並放入網頁的表格中-->
         {{#each results}}
         <tr>
+          <td><img src='/assets/photos/{{picpath}}' border="5" height="100" width="100" align="center"></td>
           <td>{{ empno }}</td>
           <td>{{ ename }}</td>
           <td>{{ job }}</td>
@@ -41,8 +46,8 @@
             <!-- data-* : 這是html5的語法，* 的位置你可以用任何名稱取代，但是不可以用大寫-->
             <!-- 下面兩句語法中，使用許多 data-* 的設定，簡單來說，就是設定許多變數存放該列的內容值-->
             
-            <a href="javascript:void(0);" class="btn btn-sm btn-info edit"  data-empno="{{ empno }}" data-ename="{{ ename }}" data-comm="{{ comm }}" data-salary="{{ salary }}">編輯</a>
-            <a href="javascript:void(0);" class="btn btn-sm btn-danger delete"  data-empno="{{ empno }}">刪除</a>
+            <a href="javascript:void(0);" class="btn btn-sm btn-info edit"  data-picpath="{{ picpath}}" data-empno="{{ empno }}" data-ename="{{ ename }}" data-comm="{{ comm }}" data-salary="{{ salary }}">編輯</a>
+            <a href="javascript:void(0);" class="btn btn-sm btn-danger delete"  data-empno="{{ empno }}" data-picpath="{{ picpath }}">刪除</a>
           </td>
         </tr>
         {{/each}}
@@ -51,7 +56,7 @@
   </div>
  
   <!--新增員工資料的視窗-->
-  <form action="/add" method="post"> 
+  <form action="/add" enctype="multipart/form-data" method="post"> 
         <div class="modal fade" id="myModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
          <div class="modal-dialog" role="document">
            <div class="modal-content">
@@ -63,32 +68,34 @@
              </div>
              <div class="modal-body">
                <div class="form-group">
-                   <input type="text" name="p_empno" class="form-control" placeholder="員工ID" required>
-               </div>
-
-               <div class="form-group">
-                   <input type="text" name="p_ename" class="form-control" placeholder="員工姓名" required>
+                   <input type="text"  name="p_empno" class="form-control" placeholder="員工ID" required>
                </div>
                <div class="form-group">
-                   <input type="text" name="p_job" class="form-control" placeholder="職位" required>
+                   <input type="text"  name="p_ename" class="form-control" placeholder="員工姓名" required>
                </div>
                <div class="form-group">
-                   <input type="text" name="p_manager" class="form-control" value="" placeholder="管理者" >
+                   <input type="text"  name="p_job" class="form-control" placeholder="職位" required>
                </div>
                <div class="form-group">
-                   <input type="text" name="p_salary" class="form-control" placeholder="薪水" required>
+                   <input type="text"  name="p_manager" class="form-control" value="" placeholder="管理者" >
                </div>
                <div class="form-group">
-                   <input type="text" name="p_hiredate" class="form-control" placeholder="雇用日期" required>
+                   <input type="text"  name="p_salary" class="form-control" placeholder="薪水" required>
                </div>
                <div class="form-group">
-                   <input type="text" name="p_comm" class="form-control" placeholder="獎金" required>
+                   <input type="text"   name="p_hiredate" class="form-control" placeholder="雇用日期" required>
                </div>
                <div class="form-group">
-                   <input type="text" name="p_deptno" class="form-control" placeholder="部門代號" required>
+                   <input type="text"  name="p_comm" class="form-control" placeholder="獎金">
                </div>
+               <div class="form-group">
+                   <input type="text"  name="p_deptno" class="form-control" placeholder="部門代號" required>
+               </div>
+               <div>
+                 <input type='file'  id="addimg" name="p_path" class="form-control">
+                 <img id="img_add" hieght="200" width="200"/>  
+               </div>  
              </div>
-
              <div class="modal-footer">
                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                <button type="submit" class="btn btn-primary">Save</button>
@@ -96,10 +103,11 @@
            </div>
          </div>
         </div>
+        
   </form>
  
   <!-- 員工薪資與獎金更新視窗-->
-  <form action="/update" method="post">
+  <form action="/update" enctype="multipart/form-data" method="post">
        <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -111,21 +119,25 @@
             </div>
             <div class="modal-body ">
               <div class="form-group">
-                  <label>員工名稱 : </label>
+                  <label>姓名 : </label>
                   <input type="text" name="p_ename" class="form-control p_ename" placeholder="員工姓名" required>
               </div>
- 
               <div class="form-group">
-                  <label>員工薪水 : </label>
+                  <label>薪水 : </label>
                   <input type="text" name="p_salary" class="form-control p_salary" placeholder="薪水" required>
               </div>
               <div class="form-group">
-                  <label>員工獎金 : </label>
+                  <label>獎金 : </label>
                   <input type="text" name="p_comm" class="form-control p_comm" placeholder="獎金" required>
               </div>
+              <div>
+                 <input type='file'  id="editimg" name="p_path2" >
+                 <img id="img_edit" border="5" height="100" width="100" />
+               </div>  
             </div>
             <div class="modal-footer">
               <input type="hidden" name="p_empno" class="form-control p_empno">
+              <input type="hidden" name="p_picpath" class="form-control p_picpath" >
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <button type="submit" class="btn btn-primary">Update</button>
             </div>
@@ -148,6 +160,7 @@
                    </div>
                    <div class="modal-footer">
                         <input type="hidden" name="p_empno2" class="form-control p_empno2" required>
+                        <input type="hidden" name="p_picpath2" class="form-control p_picpath2" required>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-success">Delete</button>
                    </div>
@@ -176,22 +189,55 @@
             var vhiredate = $(this).data('hiredate');
             var vcomm = $(this).data('comm');
             var vdeptno = $(this).data('deptno');
+            var vpicpath = $(this).data('picpath');
             
             $('#EditModal').modal('show'); //顯示員工資料編輯視窗
             $('.p_empno').val(vempno);   //帶入相關變數資料
             $('.p_ename').val(vename);
             $('.p_salary').val(vsalary);
             $('.p_comm').val(vcomm);
+            $('.p_picpath').val(vpicpath);  // 取得員工照片檔名
+            $('#img_edit').attr('src','/assets/photos/'+vpicpath); // 自動帶入員工照片
         });
             //顯示刪除員工資料視窗
         $('#mytable').on('click','.delete',function(){
             var vempno = $(this).data('empno');
+            var vpicpath = $(this).data('picpath');
             $('#DeleteModal').modal('show');
             $('.p_empno2').val(vempno);
+            $('.p_picpath2').val(vpicpath);
             
         });
-          
- 
+
+        // 針對編輯視窗中的 上傳圖片元素 綁定事件 change  
+        $('#addimg').on('change', function(e){      
+                    
+            const file = this.files[0]; // 取得第一個檔案的相關資料
+                    
+            const fr = new FileReader();
+            fr.onload = function (e) {
+               $('#img_add').attr('src', e.target.result);  // img元素 加入 src資訊：檔案位置              
+            };
+      
+            // 使用 readAsDataURL 將圖片轉成 Base64
+            fr.readAsDataURL(file);  // 將讀到的image 轉成 Ｄata URL 並綁定在img 元素上的src屬性
+        });
+        
+        // 針對編輯視窗中的 上傳圖片元素 綁定事件 change 
+        $('#editimg').on('change', function(e){      
+                    
+            const file = this.files[0];
+                    
+            const fr = new FileReader();
+            fr.onload = function (e) {
+               $('#img_edit').removeProp('src');
+               $('#img_edit').attr('src', e.target.result);                   
+            };
+      
+            // 使用 readAsDataURL 將圖片轉成 Base64
+            fr.readAsDataURL(file);
+        });
+        
     });
   </script>
 </body>
