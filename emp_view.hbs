@@ -1,0 +1,198 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>EMP Table uses Node.js and Mysql</title>
+  <link href="/assets/css/bootstrap.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <div class="container">
+    <h2>員工列表</h2>
+        <!--  Button 按鈕樣式說明可參考： https://v4-alpha.getbootstrap.com/components/buttons/#button-tags-->
+        <button class="btn btn-success" data-toggle="modal" data-target="#myModalAdd">新增員工</button>
+    <table class="table table-striped" id="mytable">
+      <thead>
+        <tr>
+          <th>員工ID</th>
+          <th>員工名稱</th>
+          <th>職位</th>
+          <th>管理者</th>
+          <th>雇用日期</th>
+          <th>薪水</th>
+          <th>獎金</th>
+          <th>部門代碼</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Handlebars : 簡稱 hbs 是一種網頁模版語言-->
+        <!-- 下面是hbs 取得 results 變數後，使用 each 語法將裡面的每一個元素取出，並放入網頁的表格中-->
+        {{#each results}}
+        <tr>
+          <td>{{ empno }}</td>
+          <td>{{ ename }}</td>
+          <td>{{ job }}</td>
+          <td>{{ manager }}</td>
+          <td>{{ hiredate }}</td>
+          <td>{{ salary }}</td>
+          <td>{{ comm }}</td>
+          <td>{{ deptno }}</td>
+          <td>
+            <!-- javascript:void(0) : 執行一運算式，但是不會回傳值出來   -->
+            <!-- btn, btn-sm, btn-info edit : 表示此元素 <a> 的 class 名稱， 這裡的目的是將 <a> 表現成像是按鈕，並給此按鈕一些設定，例如顏色與大小-->
+            <!-- data-* : 這是html5的語法，* 的位置你可以用任何名稱取代，但是不可以用大寫-->
+            <!-- 下面兩句語法中，使用許多 data-* 的設定，簡單來說，就是設定許多變數存放該列的內容值-->
+            
+            <a href="javascript:void(0);" class="btn btn-sm btn-info edit"  data-empno="{{ empno }}" data-ename="{{ ename }}" data-comm="{{ comm }}" data-salary="{{ salary }}">編輯</a>
+            <a href="javascript:void(0);" class="btn btn-sm btn-danger delete"  data-empno="{{ empno }}">刪除</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+ 
+  <!--新增員工資料的視窗-->
+  <form action="/add" method="post"> 
+        <div class="modal fade" id="myModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+         <div class="modal-dialog" role="document">
+           <div class="modal-content">
+             <div class="modal-header">
+               <h5 class="modal-title" id="exampleModalLabel">新增員工</h5>
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+             <div class="modal-body">
+               <div class="form-group">
+                   <input type="text" name="p_empno" class="form-control" placeholder="員工ID" required>
+               </div>
+
+               <div class="form-group">
+                   <input type="text" name="p_ename" class="form-control" placeholder="員工姓名" required>
+               </div>
+               <div class="form-group">
+                   <input type="text" name="p_job" class="form-control" placeholder="職位" required>
+               </div>
+               <div class="form-group">
+                   <input type="text" name="p_manager" class="form-control" value="" placeholder="管理者" >
+               </div>
+               <div class="form-group">
+                   <input type="text" name="p_salary" class="form-control" placeholder="薪水" required>
+               </div>
+               <div class="form-group">
+                   <input type="text" name="p_hiredate" class="form-control" placeholder="雇用日期" required>
+               </div>
+               <div class="form-group">
+                   <input type="text" name="p_comm" class="form-control" placeholder="獎金" required>
+               </div>
+               <div class="form-group">
+                   <input type="text" name="p_deptno" class="form-control" placeholder="部門代號" required>
+               </div>
+             </div>
+
+             <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+               <button type="submit" class="btn btn-primary">Save</button>
+             </div>
+           </div>
+         </div>
+        </div>
+  </form>
+ 
+  <!-- 員工薪資與獎金更新視窗-->
+  <form action="/update" method="post">
+       <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">編輯員工薪資與獎金</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body ">
+              <div class="form-group">
+                  <label>員工名稱 : </label>
+                  <input type="text" name="p_ename" class="form-control p_ename" placeholder="員工姓名" required>
+              </div>
+ 
+              <div class="form-group">
+                  <label>員工薪水 : </label>
+                  <input type="text" name="p_salary" class="form-control p_salary" placeholder="薪水" required>
+              </div>
+              <div class="form-group">
+                  <label>員工獎金 : </label>
+                  <input type="text" name="p_comm" class="form-control p_comm" placeholder="獎金" required>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <input type="hidden" name="p_empno" class="form-control p_empno">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </div>
+        </div>
+       </div>
+  </form>
+ 
+  <!-- 刪除員工資料視窗-->
+  <form action="/delete" method="post">
+         <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+               <div class="modal-content">
+                   <div class="modal-header">
+                      <h5 class="modal-title" id="myModalLabel">刪除員工</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                   </div>
+                   <div class="modal-body">
+                      <strong>確定刪除此筆員工資料？</strong>
+                   </div>
+                   <div class="modal-footer">
+                        <input type="hidden" name="p_empno2" class="form-control p_empno2" required>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Delete</button>
+                   </div>
+                    </div>
+            </div>
+         </div>
+  </form>
+
+  <script src="/assets/js/jquery-3.3.1.js"></script>
+  <script src="/assets/js/bootstrap.js"></script>
+  <script>
+    // jQuery的標準寫法
+    $(document).ready(function(){
+            
+        // 在 mytable 下的 class edit 上，綁定一個function，當出現 click事件時，執行此function
+        $('#mytable').on('click','.edit',function(){
+        
+            // 取得該列員工的資料
+            // 上述提到使用 data-* 可以自訂變數儲存內容值，在這裏則可以利用jQuery的語法 .data() 取出內容值
+            // 例如有一個變數 data-ename ， 則你可以用 .data(ename) 取出 data-ename的內容值
+            var vempno = $(this).data('empno');
+            var vename = $(this).data('ename');
+            var vjob = $(this).data('job');
+            var vmanager = $(this).data('manager');
+            var vsalary = $(this).data('salary');
+            var vhiredate = $(this).data('hiredate');
+            var vcomm = $(this).data('comm');
+            var vdeptno = $(this).data('deptno');
+            
+            $('#EditModal').modal('show'); //顯示員工資料編輯視窗
+            $('.p_empno').val(vempno);   //帶入相關變數資料
+            $('.p_ename').val(vename);
+            $('.p_salary').val(vsalary);
+            $('.p_comm').val(vcomm);
+        });
+            //顯示刪除員工資料視窗
+        $('#mytable').on('click','.delete',function(){
+            var vempno = $(this).data('empno');
+            $('#DeleteModal').modal('show');
+            $('.p_empno2').val(vempno);
+            
+        });
+          
+ 
+    });
+  </script>
+</body>
+</html>
